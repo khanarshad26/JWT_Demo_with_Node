@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 // import { check, validationResult } from "express-validator";
 import JWT from "jsonwebtoken"
 import dotenv from 'dotenv';
+import User from "../models/User.js";
 
 dotenv.config();
 
@@ -38,9 +39,21 @@ router.post('/', async(req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
     const user = { name, username, password : hashedPassword };
     data = [...data, user];
-    // users.push(user);
-    const token = await JWT.sign({ username }, process.env.JWT_SECRET_KEY, {expiresIn: 360000});
-    res.json({token});
+
+    const newUser = new User({ name, username, password : hashedPassword });
+    console.log(newUser);
+    // const userdata = await newUser.save();
+    // res.status(200).json(userdata);
+
+    try{
+        const userdata = await newUser.save();
+        res.status(200).json(userdata);
+    }catch(e){
+        console.log(e);
+    }
+
+    // const token = await JWT.sign({ username }, process.env.JWT_SECRET_KEY, {expiresIn: 360000});
+    // res.json(newUser);
     // res.status(200).json(data);
 })
 
